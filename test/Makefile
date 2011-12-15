@@ -1,5 +1,5 @@
 # Configuration
-OCAMLC=$(OCAMLBIN)ocamlc
+OCAMLC=$(CAMLBIN)ocamlc
 COQC=$(COQBIN)coqc
 
 ##############################################################################
