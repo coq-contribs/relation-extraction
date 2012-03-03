@@ -20,8 +20,8 @@
 (*                 Pierre-Nicolas Tollitte <tollitte@ensiie.fr>             *)
 (****************************************************************************)
 
-open Util
 open Pp
+open Errors
 open Printer
 open Declarations
 open Names

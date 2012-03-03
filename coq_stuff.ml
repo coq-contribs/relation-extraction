@@ -58,11 +58,11 @@ let extract_dependencies henv =
       Names.id_of_string (String.sub i pos (String.length i - pos))
     with Not_found -> i in
 
-    Libnames.Ident (Util.dummy_loc, i)
+    Libnames.Ident (Pp.dummy_loc, i)
   ) henv.cstrs in
   (* Not required anymore (Coq bool is mapped to OCaml bool) *)
   (*let refl = (Libnames.Qualid 
-    (Util.dummy_loc, Libnames.qualid_of_string "Coq.Init.Datatypes.bool"))::
+    (Pp.dummy_loc, Libnames.qualid_of_string "Coq.Init.Datatypes.bool"))::
     refl in *)
   Extract_env.full_extraction None refl
 
@@ -94,7 +94,7 @@ let rec list_mem_option x l = match l with
 (* Gets the type of one inductive body *)
 let get_user_arity = function
   | Declarations.Monomorphic m -> m.Declarations.mind_user_arity
-  | _ -> Util.errorlabstrm "RelationExtraction"
+  | _ -> Errors.errorlabstrm "RelationExtraction"
                       (Pp.str "Cannot deal with polymorphic inductive arity")
 
 let make_mode ind_glb user_mode =

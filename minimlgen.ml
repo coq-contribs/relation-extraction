@@ -22,8 +22,8 @@
 
 open Pred
 open Coq_stuff
-open Util
 open Pp
+open Errors
 open Miniml
 open Nametab
 open Libnames
