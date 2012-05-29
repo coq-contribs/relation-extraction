@@ -27,7 +27,7 @@ type htyp = Term.types option
 
 type henv = {
   ind_refs : (ident * Libnames.reference) list;
-  ind_grefs : (ident * Libnames.global_reference) list;
+  ind_grefs : (ident * Globnames.global_reference) list;
   cstrs : (ident * Term.constr) list;
 }
 
@@ -73,7 +73,7 @@ let rec gen_param_args nb =
   else (gen_param_args (nb-1))@[nb]
 
 let adapt_mode ind_ref mode = 
-  let ind = Term.destInd (Libnames.constr_of_global (Nametab.global ind_ref)) in
+  let ind = Term.destInd (Globnames.constr_of_global (Nametab.global ind_ref)) in
   let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
   let parameters = oib.Declarations.mind_arity_ctxt in
   let fil = List.filter ( fun (n, _, _) -> match n with
@@ -98,7 +98,7 @@ let get_user_arity = function
                       (Pp.str "Cannot deal with polymorphic inductive arity")
 
 let make_mode ind_glb user_mode =
-  let ind = Term.destInd (Libnames.constr_of_global ind_glb) in
+  let ind = Term.destInd (Globnames.constr_of_global ind_glb) in
   let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
   let typ = get_user_arity oib.Declarations.mind_arity in
   let (args_real, _) = Term.decompose_prod typ in

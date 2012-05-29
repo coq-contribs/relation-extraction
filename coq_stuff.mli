@@ -29,7 +29,7 @@ type htyp = Term.types option
 (* Coq environment. *)
 type henv = {
   ind_refs : (ident * Libnames.reference) list;
-  ind_grefs : (ident * Libnames.global_reference) list;
+  ind_grefs : (ident * Globnames.global_reference) list;
   cstrs : (ident * Term.constr) list;
 }
 
@@ -45,6 +45,6 @@ val adapt_mode : Libnames.reference -> int list -> int list
 (* Mode conversion, with skipers for implicit arguments. If the mode is not provided,
    it returns the full mode.
    adapt_mode may be invoked prior to this function. *)
-val make_mode : Libnames.global_reference -> (int list) option -> mode
+val make_mode : Globnames.global_reference -> (int list) option -> mode
 
 

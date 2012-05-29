@@ -26,6 +26,7 @@ open Declarations
 open Term
 open Names
 open Libnames
+open Globnames
 open Nametab
 open Inductive
 open Pred

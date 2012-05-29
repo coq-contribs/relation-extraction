@@ -28,6 +28,7 @@ open Names
 open Term
 open Pattern
 open Libnames
+open Globnames
 open Nametab
 open Univ
 open Miniml

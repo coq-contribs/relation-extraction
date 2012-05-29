@@ -27,6 +27,7 @@ open Errors
 open Miniml
 open Nametab
 open Libnames
+open Globnames
 open Names
 open Term
 open Extract_env
