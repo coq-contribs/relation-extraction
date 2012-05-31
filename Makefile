@@ -40,6 +40,9 @@ $(call includecmdwithout@,$(COQBIN)coqtop -config)
 ##########################
 
 OCAMLLIBS?=
+COQLIBS?= -R . RelationExtraction
+COQDOCLIBS?=-R . RelationExtraction
+
 ##########################
 #                        #
 # Variables definitions. #
@@ -59,6 +62,7 @@ COQSRCLIBS?=-I $(COQLIB)kernel -I $(COQLIB)lib \
   -I $(COQLIB)plugins/btauto \
   -I $(COQLIB)plugins/cc \
   -I $(COQLIB)plugins/decl_mode \
+  -I $(COQLIB)plugins/dp \
   -I $(COQLIB)plugins/extraction \
   -I $(COQLIB)plugins/field \
   -I $(COQLIB)plugins/firstorder \
@@ -72,6 +76,7 @@ COQSRCLIBS?=-I $(COQLIB)kernel -I $(COQLIB)lib \
   -I $(COQLIB)plugins/romega \
   -I $(COQLIB)plugins/rtauto \
   -I $(COQLIB)plugins/setoid_ring \
+  -I $(COQLIB)plugins/subtac \
   -I $(COQLIB)plugins/syntax \
   -I $(COQLIB)plugins/xml
 ZFLAGS=$(OCAMLLIBS) $(COQSRCLIBS) -I $(CAMLP4LIB)
