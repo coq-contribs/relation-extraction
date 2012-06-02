@@ -20,11 +20,12 @@
 (*                 Pierre-Nicolas Tollitte <tollitte@ensiie.fr>             *)
 (****************************************************************************)
 
+open Pp
 open Pred
 open Coq_stuff
 
 (* Generates & prtints a MiniML functions list. *)
-val gen_miniml : (htyp, henv) extract_env -> unit
+val gen_miniml : (htyp, henv) extract_env -> std_ppcmds
 
 (* Get rel index from a binders list. *)
 val get_rel : 'a -> 'a list -> int

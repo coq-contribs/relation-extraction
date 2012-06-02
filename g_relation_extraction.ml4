@@ -41,38 +41,38 @@ END
 
 VERNAC COMMAND EXTEND ExtractionRelation
 | [ "Extraction" "Relation" mode(mde) ] ->
-  [ relation_extraction (fst mde) [ mde ] ]
+  [ msg_info (relation_extraction (fst mde) [ mde ]) ]
 | [ "Extraction" "Relation" mode(mde) "with" mode_list(modes) ] ->
-  [ relation_extraction (fst mde) (mde :: modes) ]
+  [ msg_info (relation_extraction (fst mde) (mde :: modes)) ]
 END
 
 VERNAC COMMAND EXTEND ExtractionRelationRelaxed
 | [ "Extraction" "Relation" "Relaxed" mode(mde) ] ->
-  [ relation_extraction_order (fst mde) [ mde ] ]
+  [ msg_info (relation_extraction_order (fst mde) [ mde ]) ]
 | [ "Extraction" "Relation" "Relaxed" mode(mde) "with" mode_list(modes) ] ->
-  [ relation_extraction_order (fst mde) (mde :: modes) ]
+  [ msg_info (relation_extraction_order (fst mde) (mde :: modes)) ]
 END
 
 VERNAC COMMAND EXTEND ExtractionRelationSingle
 | [ "Extraction" "Relation" "Single" mode(mde) ] ->
-  [ relation_extraction_single (fst mde) [ mde ] ]
+  [ msg_info (relation_extraction_single (fst mde) [ mde ]) ]
 | [ "Extraction" "Relation" "Single" mode(mde) "with" mode_list(modes) ] ->
-  [ relation_extraction_single (fst mde) (mde :: modes) ]
+  [ msg_info (relation_extraction_single (fst mde) (mde :: modes)) ]
 END
 
 VERNAC COMMAND EXTEND ExtractionRelationSingleRelaxed
 | [ "Extraction" "Relation" "Single" "Relaxed" mode(mde) ] ->
-  [ relation_extraction_single_order (fst mde) [ mde ] ]
+  [ msg_info (relation_extraction_single_order (fst mde) [ mde ]) ]
 | [ "Extraction" "Relation" "Single" "Relaxed" mode(mde) "with" mode_list(modes) ] ->
-  [ relation_extraction_single_order (fst mde) (mde :: modes) ]
+  [ msg_info (relation_extraction_single_order (fst mde) (mde :: modes)) ]
 END
 
 
 VERNAC COMMAND EXTEND ExtractionRelationFixpoint
 | [ "Extraction" "Relation" "Fixpoint" mode(mde) ] ->
-  [ relation_extraction_fixpoint (fst mde) [ mde ] ]
+  [ msg_info (relation_extraction_fixpoint (fst mde) [ mde ]) ]
 | [ "Extraction" "Relation" "Fixpoint" mode(mde) "with" mode_list(modes) ] ->
-  [ relation_extraction_fixpoint (fst mde) (mde :: modes) ]
+  [ msg_info (relation_extraction_fixpoint (fst mde) (mde :: modes)) ]
 END
 
 VERNAC COMMAND EXTEND ExtractionRelationPrint

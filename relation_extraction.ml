@@ -129,8 +129,8 @@ let cstr = match cst_body.Declarations.const_body with
 constr_display cstr *)
 
  
-let relation_extraction_fixpoint idr modes =
-  let _ = idr, modes in ()
+(* let relation_extraction_fixpoint idr modes =
+  let _ = idr, modes in ()*)
 
-let extraction_print str =
-  Printf.printf "%s\n" str
+let extraction_print s =
+  msg_info (str s)

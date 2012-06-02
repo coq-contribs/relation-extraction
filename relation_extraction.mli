@@ -20,22 +20,23 @@
 (*                 Pierre-Nicolas Tollitte <tollitte@ensiie.fr>             *)
 (****************************************************************************)
 
+open Pp
 
 (* Print a string to the extraction file. *)
 val extraction_print : string -> unit
 
 (* Extraction of one relation (or mutually recursive relations). *)
 val relation_extraction_single : Libnames.reference ->
-  (Libnames.reference * int list) list -> unit
+  (Libnames.reference * int list) list -> std_ppcmds
 val relation_extraction : Libnames.reference ->
-  (Libnames.reference * int list) list -> unit
+  (Libnames.reference * int list) list -> std_ppcmds
 
 (* Extraction of one relation from a non deterministic specification. *)
 val relation_extraction_single_order : Libnames.reference ->
-  (Libnames.reference * int list) list -> unit
+  (Libnames.reference * int list) list -> std_ppcmds
 val relation_extraction_order : Libnames.reference ->
-  (Libnames.reference * int list) list -> unit
+  (Libnames.reference * int list) list -> std_ppcmds
 
 (* Extraction of one or more relations into Fixpoints. *)
 val relation_extraction_fixpoint : Libnames.reference ->
-  (Libnames.reference * int list) list -> unit
+  (Libnames.reference * int list) list -> std_ppcmds
