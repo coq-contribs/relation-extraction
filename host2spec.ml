@@ -292,7 +292,7 @@ let rec build_premisse (env, id_spec) named_prod term =
       let ind_binds = List.rev (Array.to_list mib.mind_packets) in
       let i = i - List.length named_prod - 1 in
       let good_oib = List.nth ind_binds i in
-      let ind_gref = global (Ident (dummy_loc, good_oib.mind_typename)) in
+      let ind_gref = global (Ident (Loc.ghost, good_oib.mind_typename)) in
       let ind = destInd (constr_of_global ind_gref) in
       build_predicate ind args
     | _ -> anomalylabstrm "RelationExtraction" (str "Bad premisse form")

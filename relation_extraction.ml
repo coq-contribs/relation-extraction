@@ -58,7 +58,7 @@ let extract_relation_common dep ord ind_ref modes =
   let ids = List.map (fun ind_ref ->
     let ind = destInd (constr_of_global (global ind_ref)) in
     let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
-  (*let idrs = List.map (fun oib -> Ident (dummy_loc, oib.mind_typename)) 
+  (*let idrs = List.map (fun oib -> Ident (Loc.ghost, oib.mind_typename)) 
              oibs in*)
   (*TODO: add irds to ind_refs if they are not present ? 
           ie no mode given, or fail ? *)
