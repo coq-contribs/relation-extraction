@@ -30,7 +30,7 @@ define donewline
 
 
 endef
-includecmdwithout@ = $(eval $(subst @,$(donewline),$(shell { $(1) | tr '\n' '@'; })))
+includecmdwithout@ = $(eval $(subst @,$(donewline),$(shell { $(1) | tr -d '\r' | tr '\n' '@'; })))
 $(call includecmdwithout@,$(COQBIN)coqtop -config)
 
 ##########################
@@ -54,17 +54,14 @@ RELEXTR_PLUGIN=relation_extraction_plugin
 OPT?=
 COQDEP?=$(COQBIN)coqdep -c
 COQSRCLIBS?=-I $(COQLIB)kernel -I $(COQLIB)lib \
-  -I $(COQLIB)library -I $(COQLIB)parsing \
-  -I $(COQLIB)pretyping -I $(COQLIB)interp \
-  -I $(COQLIB)printing -I $(COQLIB)intf \
-  -I $(COQLIB)proofs -I $(COQLIB)tactics \
+  -I $(COQLIB)library -I $(COQLIB)parsing -I $(COQLIB)pretyping \
+  -I $(COQLIB)interp -I $(COQLIB)printing -I $(COQLIB)intf \
+  -I $(COQLIB)proofs -I $(COQLIB)tactics -I $(COQLIB)tools \
   -I $(COQLIB)toplevel -I $(COQLIB)grammar \
   -I $(COQLIB)plugins/btauto \
   -I $(COQLIB)plugins/cc \
   -I $(COQLIB)plugins/decl_mode \
-  -I $(COQLIB)plugins/dp \
   -I $(COQLIB)plugins/extraction \
-  -I $(COQLIB)plugins/field \
   -I $(COQLIB)plugins/firstorder \
   -I $(COQLIB)plugins/fourier \
   -I $(COQLIB)plugins/funind \
@@ -72,23 +69,25 @@ COQSRCLIBS?=-I $(COQLIB)kernel -I $(COQLIB)lib \
   -I $(COQLIB)plugins/nsatz \
   -I $(COQLIB)plugins/omega \
   -I $(COQLIB)plugins/quote \
-  -I $(COQLIB)plugins/ring \
   -I $(COQLIB)plugins/romega \
   -I $(COQLIB)plugins/rtauto \
   -I $(COQLIB)plugins/setoid_ring \
-  -I $(COQLIB)plugins/subtac \
   -I $(COQLIB)plugins/syntax \
   -I $(COQLIB)plugins/xml
 ZFLAGS=$(OCAMLLIBS) $(COQSRCLIBS) -I $(CAMLP4LIB)
 
-CAMLC?=$(OCAMLC) -c -rectypes
-CAMLOPTC?=$(OCAMLOPT) -c -rectypes
-CAMLLINK?=$(OCAMLC) -rectypes
-CAMLOPTLINK?=$(OCAMLOPT) -rectypes
+CAMLC?=$(OCAMLC) -c
+CAMLOPTC?=$(OCAMLOPT) -c
+CAMLLINK?=$(OCAMLC)
+CAMLOPTLINK?=$(OCAMLOPT)
 GRAMMARS?=grammar.cma
-CAMLP4EXTEND?=pa_extend.cmo pa_macro.cmo q_MLast.cmo
-CAMLP4OPTIONS?=-loc loc
-PP?=-pp "$(CAMLP4BIN)$(CAMLP4)o -I $(CAMLLIB) -I . $(COQSRCLIBS) $(CAMLP4EXTEND) $(GRAMMARS) $(CAMLP4OPTIONS) -impl"
+ifeq ($(CAMLP4),camlp5)
+CAMLP4EXTEND=pa_extend.cmo q_MLast.cmo pa_macro.cmo
+else
+CAMLP4EXTEND=
+endif
+PP?=-pp "$(CAMLP4O) -I $(CAMLLIB) -I . $(COQSRCLIBS) compat5.cmo \
+  $(CAMLP4EXTEND) $(GRAMMARS) $(CAMLP4OPTIONS) -impl"
 
 ##################
 #                #
@@ -148,6 +147,11 @@ CMAFILES:=$(MLLIBFILES:.mllib=.cma)
 CMXAFILES:=$(CMAFILES:.cma=.cmxa)
 CMIFILES=$(sort $(ALLCMOFILES:.cmo=.cmi) $(MLIFILES:.mli=.cmi))
 CMXSFILES=$(CMXFILES:.cmx=.cmxs) $(CMXAFILES:.cmxa=.cmxs)
+ifeq '$(HASNATDYNLINK)' 'true'
+HASNATDYNLINK_OR_EMPTY := yes
+else
+HASNATDYNLINK_OR_EMPTY :=
+endif
 
 #######################################
 #                                     #
@@ -155,17 +159,17 @@ CMXSFILES=$(CMXFILES:.cmx=.cmxs) $(CMXAFILES:.cmxa=.cmxs)
 #                                     #
 #######################################
 
-all: $(CMOFILES) $(CMAFILES) $(if ifeq '$(HASNATDYNLINK)' 'true',$(CMXSFILES)) \
+all: $(CMOFILES) $(CMAFILES) $(if $(HASNATDYNLINK_OR_EMPTY),$(CMXSFILES)) \
   ./test
 
 mlihtml: $(MLIFILES:.mli=.cmi)
 	 mkdir $@ || rm -rf $@/*
-	$(OCAMLDOC) -html -rectypes -d $@ -m A $(ZDEBUG) $(ZFLAGS) $(^:.cmi=.mli)
+	$(OCAMLDOC) -html -d $@ -m A $(ZDEBUG) $(ZFLAGS) $(^:.cmi=.mli)
 
 all-mli.tex: $(MLIFILES:.mli=.cmi)
-	$(OCAMLDOC) -latex -rectypes -o $@ -m A $(ZDEBUG) $(ZFLAGS) $(^:.cmi=.mli)
+	$(OCAMLDOC) -latex -o $@ -m A $(ZDEBUG) $(ZFLAGS) $(^:.cmi=.mli)
 
-.PHONY: all opt byte archclean clean install userinstall depend html validate ./test
+.PHONY: all opt byte archclean clean install uninstall_me.sh uninstall userinstall depend html validate ./test
 
 ###################
 #                 #
@@ -214,21 +218,13 @@ userinstall:
 	+$(MAKE) USERINSTALL=true install
 
 install-natdynlink:
-	for i in $(CMXSFILES); do \
+	cd . && for i in $(CMXSFILES); do \
 	 install -d `dirname $(DSTROOT)$(COQLIBINSTALL)/RelationExtraction/$$i`; \
 	 install -m 0644 $$i $(DSTROOT)$(COQLIBINSTALL)/RelationExtraction/$$i; \
 	done
 
-install:$(if ifeq '$(HASNATDYNLINK)' 'true',install-natdynlink)
-	for i in $(CMOFILES); do \
-	 install -d `dirname $(DSTROOT)$(COQLIBINSTALL)/RelationExtraction/$$i`; \
-	 install -m 0644 $$i $(DSTROOT)$(COQLIBINSTALL)/RelationExtraction/$$i; \
-	done
-	for i in $(CMIFILES); do \
-	 install -d `dirname $(DSTROOT)$(COQLIBINSTALL)/RelationExtraction/$$i`; \
-	 install -m 0644 $$i $(DSTROOT)$(COQLIBINSTALL)/RelationExtraction/$$i; \
-	done
-	for i in $(CMAFILES); do \
+install:$(if $(HASNATDYNLINK_OR_EMPTY),install-natdynlink)
+	cd . && for i in $(VOFILES) $(CMOFILES) $(CMIFILES) $(CMAFILES); do \
 	 install -d `dirname $(DSTROOT)$(COQLIBINSTALL)/RelationExtraction/$$i`; \
 	 install -m 0644 $$i $(DSTROOT)$(COQLIBINSTALL)/RelationExtraction/$$i; \
 	done
@@ -240,12 +236,24 @@ install-doc:
 	 install -m 0644 $$i $(DSTROOT)$(COQDOCINSTALL)/RelationExtraction/$$i;\
 	done
 
+uninstall_me.sh:
+	echo '#!/bin/sh' > $@ 
+	printf 'cd $${DSTROOT}$(COQLIBINSTALL)/RelationExtraction && rm -f $(CMXSFILES) && find . -type d -and -empty -delete\ncd $${DSTROOT}$(COQLIBINSTALL) && find RelationExtraction -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
+	printf 'cd $${DSTROOT}$(COQLIBINSTALL)/RelationExtraction && rm -f $(VOFILES) $(CMOFILES) $(CMIFILES) $(CMAFILES) && find . -type d -and -empty -delete\ncd $${DSTROOT}$(COQLIBINSTALL) && find RelationExtraction -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
+	printf 'cd $${DSTROOT}$(COQDOCINSTALL)/RelationExtraction \\\n' >> "$@"
+	printf '&& rm -f $(shell find mlihtml -maxdepth 1 -and -type f -print)\n' >> "$@"
+	printf 'cd $${DSTROOT}$(COQDOCINSTALL) && find RelationExtraction/mlihtml -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
+	chmod +x $@
+
+uninstall: uninstall_me.sh
+	sh $<
+
 clean:
 	rm -f $(ALLCMOFILES) $(CMIFILES) $(CMAFILES)
 	rm -f $(ALLCMOFILES:.cmo=.cmx) $(CMXAFILES) $(CMXSFILES) $(ALLCMOFILES:.cmo=.o) $(CMXAFILES:.cmxa=.a)
 	rm -f $(addsuffix .d,$(MLFILES) $(MLIFILES) $(ML4FILES) $(MLLIBFILES) $(MLPACKFILES))
 	rm -f all.ps all-gal.ps all.pdf all-gal.pdf all.glob $(VFILES:.v=.glob) $(VFILES:.v=.tex) $(VFILES:.v=.g.tex) all-mli.tex
-	- rm -rf html mlihtml
+	- rm -rf html mlihtml uninstall_me.sh
 	- rm -rf 
 	(cd ./test ; $(MAKE) clean)
 
@@ -298,6 +306,9 @@ Makefile: Make
 %.ml.d: %.ml
 	$(OCAMLDEP) -slash $(OCAMLLIBS) "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
 
+%.cmxs: %.cmxa
+	$(CAMLOPTLINK) $(ZDEBUG) $(ZFLAGS) -linkall -shared -o $@ $<
+
 %.cmxs: %.cmx
 	$(CAMLOPTLINK) $(ZDEBUG) $(ZFLAGS) -shared -o $@ $<
 
@@ -306,9 +317,6 @@ Makefile: Make
 
 %.cmxa: | %.mllib
 	$(CAMLOPTLINK) $(ZDEBUG) $(ZFLAGS) -a -o $@ $^
-
-%.cmxs: %.cmxa
-	$(CAMLOPTLINK) $(ZDEBUG) $(ZFLAGS) -linkall -shared -o $@ $<
 
 %.mllib.d: %.mllib
 	$(COQDEP) -slash $(COQLIBS) -c "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
