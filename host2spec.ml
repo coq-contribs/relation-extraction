@@ -53,7 +53,7 @@ let add_cstr_to_env env id cstr =
 (* Gets the identifier of a binder *)
 let get_name = function
   | (Name id, _) -> id
-  | _ -> anomalylabstrm "RelationExtraction"
+  | _ -> anomaly ~label:"RelationExtraction"
                         (str "Cannot find the name of a binder")
 
 (* Finds a list of the constructors of an inductive type. *)
@@ -91,7 +91,7 @@ let find_types_of_constr constr = match kind_of_term constr with
         ) (Array.to_list oib.mind_consnames)), Some ty
       | _ -> CTNone, Some c
     ) (List.rev n)
-  | _ -> anomalylabstrm "RelationExtraction" (str "Constructor type not found")
+  | _ -> anomaly ~label:"RelationExtraction" (str "Constructor type not found")
 
 (* TODO: make compatibility with mutual inductives (see the <Rel _> case) *)
 (* Finds type of an inductive arguments. For each argument:
@@ -186,7 +186,7 @@ match kind_of_term term with
       a::args, env) (Array.to_list args) ([], env) in
     let env = add_cstr_to_env env s h in
     MLTFun (s, args, None), env
-  | _ -> anomalylabstrm "RelationExtraction" (str "Unknown Coq construction")
+  | _ -> anomaly ~label:"RelationExtraction" (str "Unknown Coq construction")
 and build_term (env, id_spec) prod typ term = 
   let (t, env) = build_untyped_term (env, id_spec) prod term in
   match typ with
@@ -213,7 +213,7 @@ let build_concl (env, id_spec) named_prod term = match kind_of_term term with
       a::args, env
     ) args typs ([], env) in
     fake_type env (MLTFun (id_spec, args, Some mode)), env
-  | _ -> anomalylabstrm "RelationExtraction"
+  | _ -> anomaly ~label:"RelationExtraction"
                         (str "Cannot find a constructor's conclusion")
 
 (* Tests if a constr is \/ *)
@@ -264,7 +264,7 @@ let rec build_premisse (env, id_spec) named_prod term =
     ) modes ([], env) in
     let env = add_indgref_to_env env id ind_gref in
     begin match pred_terms with
-      | [] -> anomalylabstrm "RelationExtraction" (str "Bad premisse form")
+      | [] -> anomaly ~label:"RelationExtraction" (str "Bad premisse form")
       | [pred_term] -> pred_term, env
       | _ -> PMChoice pred_terms, env 
     end in
@@ -295,7 +295,7 @@ let rec build_premisse (env, id_spec) named_prod term =
       let ind_gref = global (Ident (Loc.ghost, good_oib.mind_typename)) in
       let ind = destInd (constr_of_global ind_gref) in
       build_predicate ind args
-    | _ -> anomalylabstrm "RelationExtraction" (str "Bad premisse form")
+    | _ -> anomaly ~label:"RelationExtraction" (str "Bad premisse form")
   end
 
 and build_premisse_list (env, id_spec) named_prod terms =
@@ -319,7 +319,7 @@ let build_prem (env, id_spec) named_prod cstr = match kind_of_term cstr with
 let rec build_prems (env, id_spec) named_prod cstr_list = match cstr_list with
   | [] -> [], env
   | cstr::tail -> if isProd cstr then
-    anomalylabstrm "RelationExtraction" (str "Too many products in a premisse")
+    anomaly ~label:"RelationExtraction" (str "Too many products in a premisse")
   else
     let p, env = build_prem (env, id_spec) (List.tl named_prod) cstr in
     let p2, env = build_prems (env, id_spec) (List.tl named_prod) tail in

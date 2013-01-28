@@ -77,7 +77,7 @@ let find_rel bind id =
 
 (* Finds the rel of an id in a list of binders, or fails. *)
 let get_rel id bind = match find_rel bind id with
-  | None -> anomalylabstrm "RelationExtraction" (str "Cannot find rel")
+  | None -> anomaly ~label:"RelationExtraction" (str "Cannot find rel")
   | Some i -> i
 
 (* Make a new rel for an id. *)
@@ -107,7 +107,7 @@ let rec gen_pat (env, id_spec) bind nbind (p,_) = match p with
   | MLPWild -> (Pwild, nbind)
   | MLPATrue -> (get_ptrue (), nbind)
   | MLPAFalse -> (get_pfalse (), nbind)
-  | _ -> anomalylabstrm "RelationExtraction" (str "Unknown pattern in MiniML")
+  | _ -> anomaly ~label:"RelationExtraction" (str "Unknown pattern in MiniML")
 
 (* Generates a term. *)
 and gen_term (env, id_spec) default bind (t,_) = match t with
@@ -156,7 +156,7 @@ and gen_term (env, id_spec) default bind (t,_) = match t with
         (ident_of_string "(&&)")), [t; c]))
       (List.hd cl') (List.tl cl')
   | MLTADefault _ -> default
-  | _ -> anomalylabstrm "RelationExtraction" (str "Unknown term in MiniML")
+  | _ -> anomaly ~label:"RelationExtraction" (str "Unknown term in MiniML")
 
 
 (* Gets the type of a constr. *)
