@@ -125,7 +125,7 @@ let cstr = constr_of_global (global idr) in
 constr_display cstr; let cst = destConst cstr in
 let cst_body = Global.lookup_constant cst in
 let cstr = match cst_body.Declarations.const_body with 
-  Def cs -> Declarations.force cs in
+  Def cs -> Lazyconstr.force cs in
 constr_display cstr *)
 
  
