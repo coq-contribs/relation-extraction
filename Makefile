@@ -64,23 +64,24 @@ COQSRCLIBS?=-I "$(COQLIB)kernel" -I "$(COQLIB)lib" \
   -I "$(COQLIB)library" -I "$(COQLIB)parsing" -I "$(COQLIB)pretyping" \
   -I "$(COQLIB)interp" -I "$(COQLIB)printing" -I "$(COQLIB)intf" \
   -I "$(COQLIB)proofs" -I "$(COQLIB)tactics" -I "$(COQLIB)tools" \
-  -I "$(COQLIB)toplevel" -I "$(COQLIB)grammar" \
-  -I $(COQLIB)/plugins/btauto \
-  -I $(COQLIB)/plugins/cc \
-  -I $(COQLIB)/plugins/decl_mode \
-  -I $(COQLIB)/plugins/extraction \
-  -I $(COQLIB)/plugins/firstorder \
-  -I $(COQLIB)/plugins/fourier \
-  -I $(COQLIB)/plugins/funind \
-  -I $(COQLIB)/plugins/micromega \
-  -I $(COQLIB)/plugins/nsatz \
-  -I $(COQLIB)/plugins/omega \
-  -I $(COQLIB)/plugins/quote \
-  -I $(COQLIB)/plugins/romega \
-  -I $(COQLIB)/plugins/rtauto \
-  -I $(COQLIB)/plugins/setoid_ring \
-  -I $(COQLIB)/plugins/syntax \
-  -I $(COQLIB)/plugins/xml
+  -I "$(COQLIB)toplevel" -I "$(COQLIB)stm" -I "$(COQLIB)grammar" \
+    -I "$(COQLIB)/plugins/Derive" \
+    -I "$(COQLIB)/plugins/btauto" \
+    -I "$(COQLIB)/plugins/cc" \
+    -I "$(COQLIB)/plugins/decl_mode" \
+    -I "$(COQLIB)/plugins/extraction" \
+    -I "$(COQLIB)/plugins/firstorder" \
+    -I "$(COQLIB)/plugins/fourier" \
+    -I "$(COQLIB)/plugins/funind" \
+    -I "$(COQLIB)/plugins/micromega" \
+    -I "$(COQLIB)/plugins/nsatz" \
+    -I "$(COQLIB)/plugins/omega" \
+    -I "$(COQLIB)/plugins/quote" \
+    -I "$(COQLIB)/plugins/romega" \
+    -I "$(COQLIB)/plugins/rtauto" \
+    -I "$(COQLIB)/plugins/setoid_ring" \
+    -I "$(COQLIB)/plugins/syntax" \
+    -I "$(COQLIB)/plugins/xml"
 ZFLAGS=$(OCAMLLIBS) $(COQSRCLIBS) -I $(CAMLP4LIB)
 
 CAMLC?=$(OCAMLC) -c -rectypes
@@ -93,7 +94,7 @@ CAMLP4EXTEND=pa_extend.cmo q_MLast.cmo pa_macro.cmo
 else
 CAMLP4EXTEND=
 endif
-PP?=-pp '"$(CAMLP4O)" -I "$(CAMLLIB)" -I . $(COQSRCLIBS) compat5.cmo \
+PP?=-pp '$(CAMLP4O) -I $(CAMLLIB) -I . $(COQSRCLIBS) compat5.cmo \
   $(CAMLP4EXTEND) $(GRAMMARS) $(CAMLP4OPTIONS) -impl'
 
 ##################
@@ -302,7 +303,7 @@ Makefile: Make
 	$(CAMLOPTC) $(ZDEBUG) $(ZFLAGS) $(PP) -impl $<
 
 %.ml4.d: %.ml4
-	$(COQDEP) -slash $(OCAMLLIBS) "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
+	$(COQDEP) $(OCAMLLIBS) "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
 
 %.cmo: %.ml
 	$(CAMLC) $(ZDEBUG) $(ZFLAGS) $<
@@ -326,7 +327,7 @@ Makefile: Make
 	$(CAMLOPTLINK) $(ZDEBUG) $(ZFLAGS) -a -o $@ $^
 
 %.mllib.d: %.mllib
-	$(COQDEP) -slash $(COQLIBS) -c "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
+	$(COQDEP) $(COQLIBS) -c "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
 
 # WARNING
 #
