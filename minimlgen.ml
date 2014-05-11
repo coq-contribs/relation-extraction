@@ -49,7 +49,7 @@ let mk_dummy_glb (env, id_spec) id =
 let get_cstr (env, id_spec) id =
   try List.assoc id env.extr_henv.cstrs with _ -> 
   let fake_gref = mk_dummy_glb (env, id_spec) id in
-  constr_of_global fake_gref
+  Universes.constr_of_global fake_gref
 
 
 (* References on Coq types. *)
@@ -209,7 +209,7 @@ let is_full_extraction mode = List.for_all ((<>) MOutput) mode
 let gen_miniml_func env (id, f) =
   let mode = List.hd (extr_get_modes env id) in
   let glb = get_indgref env id in
-  let typ = Global.type_of_global glb in
+  let typ, _ = Universes.type_of_global glb in
   let (prod, _) = decompose_prod typ in
   let nprod = List.rev prod in
   let concl = type_of_concl mode nprod in 
@@ -241,7 +241,7 @@ let add_cstr_to_env env id cstr =
   {env with extr_henv = {env.extr_henv with cstrs = cstrs'}}
 let add_fake_cstr_to_env (env, id_spec) id =
   let fake_gref = mk_dummy_glb (env, id_spec) id in
-  add_cstr_to_env env id (constr_of_global fake_gref)
+  add_cstr_to_env env id (Universes.constr_of_global fake_gref)
 
 
 (* MiniML code generation. *)

@@ -58,7 +58,7 @@ let get_name = function
 
 (* Finds a list of the constructors of an inductive type. *)
 let find_it_constrs constr = 
-  let ind, i = destConstruct constr in
+  let (ind, _), i = destConstruct constr in
   let _,idc = Inductive.lookup_mind_specif (Global.env ()) ind in
   List.map (fun cstr_id  -> 
     ident_of_string (string_of_id cstr_id)
@@ -67,7 +67,7 @@ let find_it_constrs constr =
 (* Gets type of one inductive body. *)
 let get_prod_type_from_oib oib =
   match oib.mind_arity with
-      | Monomorphic a -> a.mind_user_arity
+      | RegularArity a -> a.mind_user_arity
       | _ -> errorlabstrm "RelationExtraction" (str "Non monomorphic arity")
 
 (* TODO: make compatibility with mutual inductives (see the <Rel _> case) *)
@@ -75,11 +75,11 @@ let get_prod_type_from_oib oib =
      - the list of constructors of the argument type.
      - the argument type itself. *)
 let find_types_of_constr constr = match kind_of_term constr with
-  | Construct (ind, i) -> 
+  | Construct ((ind, i), _) -> 
     let mib, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
     let (n, _) = decompose_prod oib.mind_user_lc.(i-1) in
     List.map (fun (_, c) -> match kind_of_term c with
-      | Ind ind ->
+      | Ind (ind, _) ->
         let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
         CTSum (List.map (fun cstr_id  -> 
           (ident_of_string (string_of_id cstr_id))
@@ -101,7 +101,7 @@ let find_types_of_ind ind =
   let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
   let (n, _) = decompose_prod (get_prod_type_from_oib oib) in
     List.map (fun (_, c) -> match kind_of_term c with
-      | Ind ind ->
+      | Ind (ind, _) ->
         let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
         CTSum (List.map (fun cstr_id  -> 
           (ident_of_string (string_of_id cstr_id))
@@ -153,7 +153,7 @@ let filter_impargs_cstr h args typs =
 (* Parses a simple Coq term. *)
 let rec build_untyped_term (env, id_spec) prod term = 
 match kind_of_term term with
-  | Const c -> let i = ident_of_string (string_of_con c) in
+  | Const (c, _) -> let i = ident_of_string (string_of_con c) in
     let env = add_cstr_to_env env i term in
     MLTConst i, env
   | Rel i -> let n = 
@@ -162,7 +162,7 @@ match kind_of_term term with
   | App (h, args) when isConstruct h ->
     let typs = find_types_of_constr h in
     let args, typs = filter_impargs_cstr h args typs in
-    let _, i = destConstruct h in
+    let (_, i), _ = destConstruct h in
     let it_constrs = find_it_constrs h in
     let constr = List.nth it_constrs (i-1) in
     let args, env = List.fold_right2 (fun t a (args, env) ->
@@ -171,14 +171,14 @@ match kind_of_term term with
     let env = add_cstr_to_env env constr h in
     MLTConstr (constr, args), env
   | Construct _ ->
-    let _, i = destConstruct term in
+    let (_, i), _ = destConstruct term in
     let it_constrs = find_it_constrs term in
     let constr = List.nth it_constrs (i-1) in
     let env = add_cstr_to_env env constr term in
     MLTConstr (constr, []), env
   | App (h, args) -> 
     let args, _ = filter_impargs_cstr h args (Array.to_list args) in
-    let c = destConst h in
+    let c, _ = destConst h in
     let n = con_label c in
     let s = ident_of_string (string_of_label n) in
     let args, inf = List.fold_right (fun a (args, env) ->
@@ -204,7 +204,7 @@ let rec filter_mode_skip mode args = match (mode, args) with
 let build_concl (env, id_spec) named_prod term = match kind_of_term term with
   | App (_, args) -> let mode = List.hd (extr_get_modes env id_spec) in
     let ind_ref = List.assoc id_spec env.extr_henv.ind_refs in
-    let ind = destInd (constr_of_global (global ind_ref)) in
+    let ind, _ = destInd (Universes.constr_of_global (global ind_ref)) in
     let typs = find_types_of_ind ind in
     let args = filter_mode_skip mode (Array.to_list args) in
     let typs = filter_mode_skip mode typs in
@@ -219,7 +219,7 @@ let build_concl (env, id_spec) named_prod term = match kind_of_term term with
 (* Tests if a constr is \/ *)
 let isOr constr =
   if isInd constr then
-    let ind = destInd constr in
+    let ind, _ = destInd constr in
     let _,oid = Inductive.lookup_mind_specif (Global.env ()) ind in
     (string_of_id oid.mind_typename = "or")
   else false
@@ -227,7 +227,7 @@ let isOr constr =
 (* Tests if a constr is /\ *)
 let isAnd constr =
   if isInd constr then
-    let ind = destInd constr in
+    let ind, _ = destInd constr in
     let _,oid = Inductive.lookup_mind_specif (Global.env ()) ind in
     (string_of_id oid.mind_typename = "and")
   else false
@@ -235,7 +235,7 @@ let isAnd constr =
 (* Tests if a constr is not *)
 let isNot constr =
   if isConst constr then
-    let c = destConst constr in
+    let c, _ = destConst constr in
     let str = string_of_con c in
     let str' = try let i = String.rindex str '#' in
       String.sub str (i+1) (String.length str - i - 1)
@@ -283,17 +283,17 @@ let rec build_premisse (env, id_spec) named_prod term =
     | App (h, _) when isConst h -> let t, env = build_term (env, id_spec) 
         named_prod None term in
       PMTerm t, env
-    | App (h, args) when isInd h -> let ind = destInd h in
+    | App (h, args) when isInd h -> let ind,_ = destInd h in
       build_predicate ind args
     | App (h, args) when isRel h -> let i = destRel h in
       let ind_ref = List.assoc id_spec env.extr_henv.ind_refs in
-      let ind = destInd (constr_of_global (global ind_ref)) in
+      let ind,_ = destInd (Universes.constr_of_global (global ind_ref)) in
       let mib, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
       let ind_binds = List.rev (Array.to_list mib.mind_packets) in
       let i = i - List.length named_prod - 1 in
       let good_oib = List.nth ind_binds i in
       let ind_gref = global (Ident (Loc.ghost, good_oib.mind_typename)) in
-      let ind = destInd (constr_of_global ind_gref) in
+      let ind,_ = destInd (Universes.constr_of_global ind_gref) in
       build_predicate ind args
     | _ -> anomaly ~label:"RelationExtraction" (str "Bad premisse form")
   end
@@ -347,7 +347,7 @@ let build_prop (env, id_spec) prop_name prop_type =
 (* Parses one predicate's specification. *)
 let find_one_spec env (id_spec, _) =
   let idr = List.assoc id_spec env.extr_henv.ind_refs in
-  let ind = destInd (constr_of_global (global idr)) in
+  let ind,_ = destInd (Universes.constr_of_global (global idr)) in
   let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
   let props, env = List.fold_right2 (fun prop_name cstr (pl, env) -> 
       let prop_name = ident_of_string (string_of_id prop_name) in

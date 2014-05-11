@@ -48,7 +48,7 @@ open Coq_stuff
 let extract_relation_common dep ord ind_ref modes =
   (* Initial henv *)
   let ind_refs, ind_grefs = List.split (List.map ( fun (ind_ref, _) ->
-    let ind = destInd (constr_of_global (global ind_ref)) in
+    let ind, _ = destInd (Universes.constr_of_global (global ind_ref)) in
     let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
     let id = ident_of_string (string_of_id oib.mind_typename) in
     (id, ind_ref), (id, global ind_ref) ) modes) in
@@ -56,7 +56,7 @@ let extract_relation_common dep ord ind_ref modes =
   
   (* Extractions *)
   let ids = List.map (fun ind_ref ->
-    let ind = destInd (constr_of_global (global ind_ref)) in
+    let ind,_ = destInd (Universes.constr_of_global (global ind_ref)) in
     let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
   (*let idrs = List.map (fun oib -> Ident (Loc.ghost, oib.mind_typename)) 
              oibs in*)
@@ -69,7 +69,7 @@ let extract_relation_common dep ord ind_ref modes =
   (* Modes *)
   let modes = List.map ( fun (ind_ref, mode) ->
     let ind_glb = global ind_ref in
-    let ind = destInd (constr_of_global ind_glb) in
+    let ind,_ = destInd (Universes.constr_of_global ind_glb) in
     let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
     let id = ident_of_string (string_of_id oib.mind_typename) in
     (id, [make_mode ind_glb (Some (adapt_mode ind_ref mode))]) 

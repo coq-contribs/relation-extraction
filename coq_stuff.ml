@@ -43,10 +43,10 @@ let extract_dependencies henv =
   (* We need a list of references *)
   let refl = List.map (fun (_, c) -> 
     let i = begin match Term.kind_of_term c with
-      | Term.Construct _ -> let ind, _ = Term.destConstruct c in
+      | Term.Construct _ -> let (ind, _), _ = Term.destConstruct c in
         let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
         oib.Declarations.mind_typename
-      | Term.Const c -> Names.id_of_string (Names.string_of_con c)
+      | Term.Const (c, _) -> Names.id_of_string (Names.string_of_con c)
       | _ -> assert false
     end in
     
@@ -73,7 +73,7 @@ let rec gen_param_args nb =
   else (gen_param_args (nb-1))@[nb]
 
 let adapt_mode ind_ref mode = 
-  let ind = Term.destInd (Globnames.constr_of_global (Nametab.global ind_ref)) in
+  let ind, _ = Term.destInd (Universes.constr_of_global (Nametab.global ind_ref)) in
   let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
   let parameters = oib.Declarations.mind_arity_ctxt in
   let fil = List.filter ( fun (n, _, _) -> match n with
@@ -93,12 +93,12 @@ let rec list_mem_option x l = match l with
 
 (* Gets the type of one inductive body *)
 let get_user_arity = function
-  | Declarations.Monomorphic m -> m.Declarations.mind_user_arity
+  | Declarations.RegularArity m -> m.Declarations.mind_user_arity
   | _ -> Errors.errorlabstrm "RelationExtraction"
                       (Pp.str "Cannot deal with polymorphic inductive arity")
 
 let make_mode ind_glb user_mode =
-  let ind = Term.destInd (Globnames.constr_of_global ind_glb) in
+  let ind, _ = Term.destInd (Universes.constr_of_global ind_glb) in
   let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
   let typ = get_user_arity oib.Declarations.mind_arity in
   let (args_real, _) = Term.decompose_prod typ in
