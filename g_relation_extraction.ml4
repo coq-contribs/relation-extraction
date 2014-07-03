@@ -32,6 +32,8 @@ let pr_mode _ _ _ (id, mode) =
      (List.fold_left (fun b e -> b ++ spc () ++ int e) (mt ()) mode) ++
      spc () ++ str "]"
 
+DECLARE PLUGIN "relation_extraction_plugin"
+
 ARGUMENT EXTEND mode
   TYPED AS reference * (int list)
   PRINTED BY pr_mode

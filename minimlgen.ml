@@ -45,12 +45,16 @@ let mk_dummy_glb (env, id_spec) id =
   let lbl = mk_label (string_of_ident id) in
   ConstRef (make_con mod_path dir_path lbl)
 
+let make_fakecstr fake_gref = 
+  match fake_gref with
+  | ConstRef c -> mkConst c
+  | _ -> assert false
+
 (* Gets a constr from the extract env. *)
 let get_cstr (env, id_spec) id =
   try List.assoc id env.extr_henv.cstrs with _ -> 
   let fake_gref = mk_dummy_glb (env, id_spec) id in
-  Universes.constr_of_global fake_gref
-
+    make_fakecstr fake_gref
 
 (* References on Coq types. *)
 let bool_glb () = locate (qualid_of_string "Coq.Init.Datatypes.bool")
@@ -241,7 +245,7 @@ let add_cstr_to_env env id cstr =
   {env with extr_henv = {env.extr_henv with cstrs = cstrs'}}
 let add_fake_cstr_to_env (env, id_spec) id =
   let fake_gref = mk_dummy_glb (env, id_spec) id in
-  add_cstr_to_env env id (Universes.constr_of_global fake_gref)
+  add_cstr_to_env env id (make_fakecstr fake_gref)
 
 
 (* MiniML code generation. *)

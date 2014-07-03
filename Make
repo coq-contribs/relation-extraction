@@ -1,5 +1,6 @@
+-I .
 -R . RelationExtraction
--custom "
+-extra "" "" "
 #the following is inserted verbatim
 
 all: $(RELEXTR_PLUGIN).cma $(RELEXTR_PLUGIN).cmxs
@@ -12,7 +13,7 @@ clean-plugin:
 test: $(RELEXTR_PLUGIN).cma $(RELEXTR_PLUGIN).cmxs
 
 #end verbatim
-" "" ""
+"
 
 RELEXTR_PLUGIN = "relation_extraction_plugin"
 host_stuff.mli
