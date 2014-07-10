@@ -1,3 +1,4 @@
+Import Nat.
 Add LoadPath "..".
 Declare ML Module "relation_extraction_plugin".
 
