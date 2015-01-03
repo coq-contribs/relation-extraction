@@ -46,12 +46,12 @@ TIMER=$(if $(TIMED), $(STDTIME), $(TIMECMD))
 #                        #
 ##########################
 
-OCAMLLIBS?=-I .
+OCAMLLIBS?=-I "."
 COQLIBS?=\
-  -R . RelationExtraction\
-  -I .
+  -R "." RelationExtraction\
+  -I "."
 COQDOCLIBS?=\
-  -R . RelationExtraction
+  -R "." RelationExtraction
 
 ##########################
 #                        #
@@ -68,6 +68,7 @@ COQSRCLIBS?=-I "$(COQLIB)kernel" -I "$(COQLIB)lib" \
   -I "$(COQLIB)interp" -I "$(COQLIB)printing" -I "$(COQLIB)intf" \
   -I "$(COQLIB)proofs" -I "$(COQLIB)tactics" -I "$(COQLIB)tools" \
   -I "$(COQLIB)toplevel" -I "$(COQLIB)stm" -I "$(COQLIB)grammar" \
+  -I "$(COQLIB)config" \
   -I "$(COQLIB)/plugins/Derive" \
   -I "$(COQLIB)/plugins/btauto" \
   -I "$(COQLIB)/plugins/cc" \
@@ -87,17 +88,17 @@ COQSRCLIBS?=-I "$(COQLIB)kernel" -I "$(COQLIB)lib" \
   -I "$(COQLIB)/plugins/xml"
 ZFLAGS=$(OCAMLLIBS) $(COQSRCLIBS) -I $(CAMLP4LIB)
 
-CAMLC?=$(OCAMLC) -c -rectypes
-CAMLOPTC?=$(OCAMLOPT) -c -rectypes
-CAMLLINK?=$(OCAMLC) -rectypes
-CAMLOPTLINK?=$(OCAMLOPT) -rectypes
+CAMLC?=$(OCAMLC) -c -rectypes -thread
+CAMLOPTC?=$(OCAMLOPT) -c -rectypes -thread
+CAMLLINK?=$(OCAMLC) -rectypes -thread
+CAMLOPTLINK?=$(OCAMLOPT) -rectypes -thread
 GRAMMARS?=grammar.cma
 ifeq ($(CAMLP4),camlp5)
-CAMLP4EXTEND=pa_extend.cmo q_MLast.cmo pa_macro.cmo
+CAMLP4EXTEND=pa_extend.cmo q_MLast.cmo pa_macro.cmo unix.cma threads.cma
 else
 CAMLP4EXTEND=
 endif
-PP?=-pp '$(CAMLP4O) -I $(CAMLLIB) $(COQSRCLIBS) compat5.cmo \
+PP?=-pp '$(CAMLP4O) -I $(CAMLLIB) -I $(CAMLLIB)threads/ $(COQSRCLIBS) compat5.cmo \
   $(CAMLP4EXTEND) $(GRAMMARS) $(CAMLP4OPTIONS) -impl'
 
 ##################
@@ -113,6 +114,7 @@ COQDOCINSTALL=$(XDG_DATA_HOME)/doc/coq
 else
 COQLIBINSTALL="${COQLIB}user-contrib"
 COQDOCINSTALL="${DOCDIR}user-contrib"
+COQTOPINSTALL="${COQLIB}toploop"
 endif
 
 ######################
@@ -231,8 +233,12 @@ userinstall:
 install-natdynlink:
 	cd "." && for i in $(CMXSFILES); do \
 	 install -d "`dirname "$(DSTROOT)"$(COQLIBINSTALL)/RelationExtraction/$$i`"; \
-	 install -m 0644 $$i "$(DSTROOT)"$(COQLIBINSTALL)/RelationExtraction/$$i; \
+	 install -m 0755 $$i "$(DSTROOT)"$(COQLIBINSTALL)/RelationExtraction/$$i; \
 	done
+
+install-toploop: $(MLLIBFILES:.mllib=.cmxs)
+	 install -d "$(DSTROOT)"$(COQTOPINSTALL)/
+	 install -m 0644 $?  "$(DSTROOT)"$(COQTOPINSTALL)/
 
 install:$(if $(HASNATDYNLINK_OR_EMPTY),install-natdynlink)
 	cd "." && for i in $(VOFILES) $(CMOFILES) $(CMIFILES) $(CMAFILES); do \
@@ -302,7 +308,7 @@ $(addsuffix .d,$(MLIFILES)): %.mli.d: %.mli
 $(ML4FILES:.ml4=.cmo): %.cmo: %.ml4
 	$(CAMLC) $(ZDEBUG) $(ZFLAGS) $(PP) -impl $<
 
-$(ML4FILES:.ml4=.cmx): %.cmx: %.ml4
+$(filter-out $(addsuffix .cmx,$(foreach lib,$(MLPACKFILES:.mlpack=_MLPACK_DEPENDENCIES),$($(lib)))),$(ML4FILES:.ml4=.cmx)): %.cmx: %.ml4
 	$(CAMLOPTC) $(ZDEBUG) $(ZFLAGS) $(PP) -impl $<
 
 $(addsuffix .d,$(ML4FILES)): %.ml4.d: %.ml4
@@ -311,13 +317,13 @@ $(addsuffix .d,$(ML4FILES)): %.ml4.d: %.ml4
 $(MLFILES:.ml=.cmo): %.cmo: %.ml
 	$(CAMLC) $(ZDEBUG) $(ZFLAGS) $<
 
-$(MLFILES:.ml=.cmx): %.cmx: %.ml
+$(filter-out $(addsuffix .cmx,$(foreach lib,$(MLPACKFILES:.mlpack=_MLPACK_DEPENDENCIES),$($(lib)))),$(MLFILES:.ml=.cmx)): %.cmx: %.ml
 	$(CAMLOPTC) $(ZDEBUG) $(ZFLAGS) $<
 
 $(addsuffix .d,$(MLFILES)): %.ml.d: %.ml
 	$(OCAMLDEP) -slash $(OCAMLLIBS) "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
 
-$(MLFILES:.ml=.cmxs) $(ML4FILES:.ml4=.cmxs) $(MLPACKFILES:.mlpack=.cmxs): %.cmxs: %.cmx
+$(filter-out $(MLLIBFILES:.mllib=.cmxs),$(MLFILES:.ml=.cmxs) $(ML4FILES:.ml4=.cmxs) $(MLPACKFILES:.mlpack=.cmxs)): %.cmxs: %.cmx
 	$(CAMLOPTLINK) $(ZDEBUG) $(ZFLAGS) -shared -o $@ $<
 
 $(MLLIBFILES:.mllib=.cmxs): %.cmxs: %.cmxa
