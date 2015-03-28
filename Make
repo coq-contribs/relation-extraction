@@ -3,19 +3,10 @@
 -extra "" "" "
 #the following is inserted verbatim
 
-all: $(RELEXTR_PLUGIN).cma $(RELEXTR_PLUGIN).cmxs
-
-clean: clean-plugin
-
-clean-plugin:
-	rm -f $(RELEXTR_PLUGIN).a
-
-test: $(RELEXTR_PLUGIN).cma $(RELEXTR_PLUGIN).cmxs
+test: relation_extraction_plugin.cma relation_extraction_plugin.cmxs
 
 #end verbatim
 "
-
-RELEXTR_PLUGIN = "relation_extraction_plugin"
 host_stuff.mli
 pred.mli
 pred.ml
