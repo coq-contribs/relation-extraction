@@ -19,7 +19,6 @@
 
 .DEFAULT_GOAL := all
 
-# 
 # This Makefile may take arguments passed as environment variables:
 # COQBIN to specify the directory where Coq binaries resides;
 # TIMECMD set a command to log .v compilation time;
@@ -99,7 +98,7 @@ GRAMMARS?=grammar.cma
 ifeq ($(CAMLP4),camlp5)
 CAMLP4EXTEND=pa_extend.cmo q_MLast.cmo pa_macro.cmo unix.cma threads.cma
 else
-CAMLP4EXTEND=
+CAMLP4EXTEND=threads.cma
 endif
 PP?=-pp '$(CAMLP4O) -I $(CAMLLIB) -I $(CAMLLIB)threads/ $(COQSRCLIBS) compat5.cmo \
   $(CAMLP4EXTEND) $(GRAMMARS) $(CAMLP4OPTIONS) -impl'
@@ -175,8 +174,7 @@ endif
 #                                     #
 #######################################
 
-all: $(CMOFILES) $(CMAFILES) $(if $(HASNATDYNLINK_OR_EMPTY),$(CMXSFILES)) \
-  ./test
+all: $(CMOFILES) $(CMAFILES) $(if $(HASNATDYNLINK_OR_EMPTY),$(CMXSFILES)) test
 
 mlihtml: $(MLIFILES:.mli=.cmi)
 	 mkdir $@ || rm -rf $@/*
@@ -185,7 +183,7 @@ mlihtml: $(MLIFILES:.mli=.cmi)
 all-mli.tex: $(MLIFILES:.mli=.cmi)
 	$(OCAMLDOC) -latex -rectypes -o $@ -m A $(ZDEBUG) $(ZFLAGS) $(^:.cmi=.mli)
 
-.PHONY: all archclean beautify byte clean cleanall gallina gallinahtml html install install-doc install-natdynlink install-toploop opt printenv quick uninstall userinstall validate vio2vo ./test
+.PHONY: all archclean beautify byte clean cleanall gallina gallinahtml html install install-doc install-natdynlink install-toploop opt printenv quick uninstall userinstall validate vio2vo clean
 
 ###################
 #                 #
@@ -193,23 +191,11 @@ all-mli.tex: $(MLIFILES:.mli=.cmi)
 #                 #
 ###################
 
-: 
-	
-#the following is inserted verbatim
+clean:: 
+	$(MAKE) -C test clean
 
 test: relation_extraction_plugin.cma relation_extraction_plugin.cmxs
-
-#end verbatim
-
-
-###################
-#                 #
-# Subdirectories. #
-#                 #
-###################
-
-./test:
-	+cd "./test" && $(MAKE) all
+	$(MAKE) -C test
 
 ####################
 #                  #
@@ -241,7 +227,6 @@ install:$(if $(HASNATDYNLINK_OR_EMPTY),install-natdynlink)
 	 install -d "`dirname "$(DSTROOT)"$(COQLIBINSTALL)/RelationExtraction/$$i`"; \
 	 install -m 0644 $$i "$(DSTROOT)"$(COQLIBINSTALL)/RelationExtraction/$$i; \
 	done
-	+cd ./test && $(MAKE) DSTROOT="$(DSTROOT)" INSTALLDEFAULTROOT="$(INSTALLDEFAULTROOT)/./test" install
 
 install-doc:
 	install -d "$(DSTROOT)"$(COQDOCINSTALL)/RelationExtraction/mlihtml
@@ -250,7 +235,7 @@ install-doc:
 	done
 
 uninstall_me.sh: Makefile
-	echo '#!/bin/sh' > $@ 
+	echo '#!/bin/sh' > $@
 	printf 'cd "$${DSTROOT}"$(COQLIBINSTALL)/RelationExtraction && rm -f $(CMXSFILES) && find . -type d -and -empty -delete\ncd "$${DSTROOT}"$(COQLIBINSTALL) && find "RelationExtraction" -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
 	printf 'cd "$${DSTROOT}"$(COQLIBINSTALL)/RelationExtraction && rm -f $(VOFILES) $(VFILES) $(GLOBFILES) $(NATIVEFILES) $(CMOFILES) $(CMIFILES) $(CMAFILES) && find . -type d -and -empty -delete\ncd "$${DSTROOT}"$(COQLIBINSTALL) && find "RelationExtraction" -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
 	printf 'cd "$${DSTROOT}"$(COQDOCINSTALL)/RelationExtraction \\\n' >> "$@"
@@ -267,12 +252,10 @@ clean::
 	rm -f $(addsuffix .d,$(MLFILES) $(MLIFILES) $(ML4FILES) $(MLLIBFILES) $(MLPACKFILES))
 	rm -f all.ps all-gal.ps all.pdf all-gal.pdf all.glob $(VFILES:.v=.glob) $(VFILES:.v=.tex) $(VFILES:.v=.g.tex) all-mli.tex
 	- rm -rf html mlihtml uninstall_me.sh
-	- rm -rf 
-	+cd ./test && $(MAKE) clean
+	- rm -rf test
 
 archclean::
 	rm -f *.cmx *.o
-	+cd ./test && $(MAKE) archclean
 
 printenv:
 	@"$(COQBIN)coqtop" -config
@@ -287,7 +270,6 @@ Makefile: Make
 	mv -f $@ $@.bak
 	"$(COQBIN)coq_makefile" -f $< -o $@
 
-	+cd ./test && $(MAKE) Makefile
 
 ###################
 #                 #

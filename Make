@@ -1,12 +1,5 @@
 -I .
 -R . RelationExtraction
--extra "" "" "
-#the following is inserted verbatim
-
-test: relation_extraction_plugin.cma relation_extraction_plugin.cmxs
-
-#end verbatim
-"
 host_stuff.mli
 pred.mli
 pred.ml
@@ -20,4 +13,8 @@ relation_extraction.mli
 relation_extraction.ml
 g_relation_extraction.ml4
 relation_extraction_plugin.mllib
-test
+-extra-phony "all" "test" ""
+-extra-phony "test" "relation_extraction_plugin.cma relation_extraction_plugin.cmxs"
+       "$(MAKE) -C test"
+-extra-phony "clean" ""
+       "$(MAKE) -C test clean"

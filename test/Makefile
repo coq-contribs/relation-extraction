@@ -9,14 +9,13 @@ COQC=$(COQBIN)coqc
 ##############################################################################
 
 TESTS=add.v imp.v fibo.v so.v odd.v tuples.v
-COQC_FILE=$(shell which $(COQC))
 ML_TESTS=$(subst .v,.ml,$(TESTS))
 ML_TESTS_OBJ=$(subst .v,.cmo,$(TESTS))
 
-all: $(ML_TESTS) test
+all: test
 
-%.ml: %.v $(COQC)
-	$(COQC) $< >$@
+%.ml: %.v
+	$(COQC) $< > $@
 
 %.cmo: %.ml
 	$(OCAMLC) -c $<
@@ -34,4 +33,3 @@ test: tester
 
 clean:
 	rm -f $(ML_TESTS) *.cmo *.cmi *.vo *.glob tester
-
