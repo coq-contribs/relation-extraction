@@ -174,7 +174,7 @@ endif
 #                                     #
 #######################################
 
-all: $(CMOFILES) $(CMAFILES) $(if $(HASNATDYNLINK_OR_EMPTY),$(CMXSFILES)) test
+all: $(CMOFILES) $(CMAFILES) $(if $(HASNATDYNLINK_OR_EMPTY),$(CMXSFILES)) 
 
 mlihtml: $(MLIFILES:.mli=.cmi)
 	 mkdir $@ || rm -rf $@/*
@@ -183,7 +183,7 @@ mlihtml: $(MLIFILES:.mli=.cmi)
 all-mli.tex: $(MLIFILES:.mli=.cmi)
 	$(OCAMLDOC) -latex -rectypes -o $@ -m A $(ZDEBUG) $(ZFLAGS) $(^:.cmi=.mli)
 
-.PHONY: all archclean beautify byte clean cleanall gallina gallinahtml html install install-doc install-natdynlink install-toploop opt printenv quick uninstall userinstall validate vio2vo clean
+.PHONY: all archclean beautify byte clean cleanall gallina gallinahtml html install install-doc install-natdynlink install-toploop opt printenv quick uninstall userinstall validate vio2vo clean test all
 
 ###################
 #                 #
@@ -196,6 +196,8 @@ clean::
 
 test: relation_extraction_plugin.cma relation_extraction_plugin.cmxs
 	$(MAKE) -C test
+
+all: test
 
 ####################
 #                  #
@@ -252,7 +254,6 @@ clean::
 	rm -f $(addsuffix .d,$(MLFILES) $(MLIFILES) $(ML4FILES) $(MLLIBFILES) $(MLPACKFILES))
 	rm -f all.ps all-gal.ps all.pdf all-gal.pdf all.glob $(VFILES:.v=.glob) $(VFILES:.v=.tex) $(VFILES:.v=.g.tex) all-mli.tex
 	- rm -rf html mlihtml uninstall_me.sh
-	- rm -rf test
 
 archclean::
 	rm -f *.cmx *.o
