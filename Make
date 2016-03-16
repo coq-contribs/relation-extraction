@@ -1,5 +1,6 @@
 -I .
 -R . RelationExtraction
+
 host_stuff.mli
 pred.mli
 pred.ml
@@ -13,6 +14,7 @@ relation_extraction.mli
 relation_extraction.ml
 g_relation_extraction.ml4
 relation_extraction_plugin.mllib
+
 -extra-phony "all" "test" ""
 -extra-phony "test" "relation_extraction_plugin.cma relation_extraction_plugin.cmxs"
        "$(MAKE) -C test"
