@@ -26,6 +26,10 @@
 open Genarg
 open Pp
 open Relation_extraction
+open Pcoq.Prim
+open Pcoq.Constr
+open Stdarg
+open Constrarg
 
 let pr_mode _ _ _ (id, mode) =
   str "" ++ spc () ++ str "[" ++
