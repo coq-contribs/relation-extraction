@@ -31,15 +31,14 @@ open Pcoq.Constr
 open Stdarg
 open Constrarg
 
-let pr_mode _ _ _ (id, mode) =
+let pr_mode (id, mode) =
   str "" ++ spc () ++ str "[" ++
      (List.fold_left (fun b e -> b ++ spc () ++ int e) (mt ()) mode) ++
      spc () ++ str "]"
 
 DECLARE PLUGIN "relation_extraction_plugin"
 
-ARGUMENT EXTEND mode
-  TYPED AS reference * (int list)
+VERNAC ARGUMENT EXTEND mode
   PRINTED BY pr_mode
   | [ global(id) "[" integer_list(mde) "]" ] -> [ (id, mde) ]
 END
