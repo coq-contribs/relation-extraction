@@ -133,4 +133,4 @@ constr_display cstr *)
   let _ = idr, modes in ()*)
 
 let extraction_print s =
-  msg_info (str s)
+  Feedback.msg_info (str s)

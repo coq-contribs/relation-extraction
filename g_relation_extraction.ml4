@@ -46,38 +46,38 @@ END
 
 VERNAC COMMAND EXTEND ExtractionRelation CLASSIFIED AS SIDEFF
 | [ "Extraction" "Relation" mode(mde) ] ->
-  [ msg_info (relation_extraction (fst mde) [ mde ]) ]
+  [ Feedback.msg_info (relation_extraction (fst mde) [ mde ]) ]
 | [ "Extraction" "Relation" mode(mde) "with" mode_list(modes) ] ->
-  [ msg_info (relation_extraction (fst mde) (mde :: modes)) ]
+  [ Feedback.msg_info (relation_extraction (fst mde) (mde :: modes)) ]
 END
 
 VERNAC COMMAND EXTEND ExtractionRelationRelaxed CLASSIFIED AS SIDEFF
 | [ "Extraction" "Relation" "Relaxed" mode(mde) ] ->
-  [ msg_info (relation_extraction_order (fst mde) [ mde ]) ]
+  [ Feedback.msg_info (relation_extraction_order (fst mde) [ mde ]) ]
 | [ "Extraction" "Relation" "Relaxed" mode(mde) "with" mode_list(modes) ] ->
-  [ msg_info (relation_extraction_order (fst mde) (mde :: modes)) ]
+  [ Feedback.msg_info (relation_extraction_order (fst mde) (mde :: modes)) ]
 END
 
 VERNAC COMMAND EXTEND ExtractionRelationSingle CLASSIFIED AS SIDEFF
 | [ "Extraction" "Relation" "Single" mode(mde) ] ->
-  [ msg_info (relation_extraction_single (fst mde) [ mde ]) ]
+  [ Feedback.msg_info (relation_extraction_single (fst mde) [ mde ]) ]
 | [ "Extraction" "Relation" "Single" mode(mde) "with" mode_list(modes) ] ->
-  [ msg_info (relation_extraction_single (fst mde) (mde :: modes)) ]
+  [ Feedback.msg_info (relation_extraction_single (fst mde) (mde :: modes)) ]
 END
 
 VERNAC COMMAND EXTEND ExtractionRelationSingleRelaxed CLASSIFIED AS SIDEFF
 | [ "Extraction" "Relation" "Single" "Relaxed" mode(mde) ] ->
-  [ msg_info (relation_extraction_single_order (fst mde) [ mde ]) ]
+  [ Feedback.msg_info (relation_extraction_single_order (fst mde) [ mde ]) ]
 | [ "Extraction" "Relation" "Single" "Relaxed" mode(mde) "with" mode_list(modes) ] ->
-  [ msg_info (relation_extraction_single_order (fst mde) (mde :: modes)) ]
+  [ Feedback.msg_info (relation_extraction_single_order (fst mde) (mde :: modes)) ]
 END
 
 
 VERNAC COMMAND EXTEND ExtractionRelationFixpoint CLASSIFIED AS SIDEFF
 | [ "Extraction" "Relation" "Fixpoint" mode(mde) ] ->
-  [ msg_info (relation_extraction_fixpoint (fst mde) [ mde ]) ]
+  [ Feedback.msg_info (relation_extraction_fixpoint (fst mde) [ mde ]) ]
 | [ "Extraction" "Relation" "Fixpoint" mode(mde) "with" mode_list(modes) ] ->
-  [ msg_info (relation_extraction_fixpoint (fst mde) (mde :: modes)) ]
+  [ Feedback.msg_info (relation_extraction_fixpoint (fst mde) (mde :: modes)) ]
 END
 
 VERNAC COMMAND EXTEND ExtractionRelationPrint CLASSIFIED AS SIDEFF
