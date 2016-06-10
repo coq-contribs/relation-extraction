@@ -66,7 +66,7 @@ let extract_dependencies henv =
   (*let refl = (Libnames.Qualid 
     (Loc.ghost, Libnames.qualid_of_string "Coq.Init.Datatypes.bool"))::
     refl in *)
-  Extract_env.full_extraction None refl
+  Extraction_plugin.Extract_env.full_extraction None refl
 
 
 (* Generates mode arguments for nb parameters. *)

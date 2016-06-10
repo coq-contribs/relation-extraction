@@ -13,10 +13,10 @@ minimlgen.ml
 relation_extraction.mli
 relation_extraction.ml
 g_relation_extraction.ml4
-relation_extraction_plugin.mllib
+relation_extraction_plugin.mlpack
 
 -extra-phony "all" "test" ""
--extra-phony "test" "relation_extraction_plugin.cma relation_extraction_plugin.cmxs"
+-extra-phony "test" "relation_extraction_plugin.cmo relation_extraction_plugin.cmxs"
        "$(MAKE) -C test"
 -extra-phony "clean" ""
        "$(MAKE) -C test clean"

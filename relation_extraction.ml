@@ -31,10 +31,12 @@ open Libnames
 open Globnames
 open Nametab
 open Univ
+
 open Miniml
-open Common
-open Extract_env
-open Table
+open Extraction_plugin.Common
+open Extraction_plugin.Extract_env
+open Extraction_plugin.Table
+
 open Pred
 open Coq_stuff
 

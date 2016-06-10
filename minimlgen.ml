@@ -30,8 +30,8 @@ open Libnames
 open Globnames
 open Names
 open Term
-open Extract_env
-open Table
+open Extraction_plugin.Extract_env
+open Extraction_plugin.Table
 
 (* Gets an inductive global reference from the extract env. *)
 let get_indgref env id =
@@ -202,7 +202,7 @@ let miniml_init =
         "let ocaml_beq = fun x y -> if x = y then True else False" in*)
       let bool_ref = Libnames.Qualid 
         ((Loc.ghost, qualid_of_string "Coq.Init.Datatypes.bool")) in
-      let _ = Table.extract_inductive bool_ref "bool" ["true"; "false"] None in
+      let _ = extract_inductive bool_ref "bool" ["true"; "false"] None in
       init_done := true;
       ()
     else ()
