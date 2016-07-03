@@ -23,7 +23,7 @@
 open Pred
 open Coq_stuff
 open Pp
-open Errors
+open CErrors
 open Miniml
 open Nametab
 open Libnames

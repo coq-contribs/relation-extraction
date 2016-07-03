@@ -21,7 +21,7 @@
 (****************************************************************************)
 
 open Pp
-open Errors
+open CErrors
 open Printer
 open Declarations
 open Names

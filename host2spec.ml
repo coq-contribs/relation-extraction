@@ -21,7 +21,7 @@
 (****************************************************************************)
 
 open Pp
-open Errors
+open CErrors
 open Declarations
 open Term
 open Names
