@@ -78,7 +78,7 @@ let adapt_mode ind_ref mode =
   let ind, _ = Term.destInd (Universes.constr_of_global (Nametab.global ind_ref)) in
   let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
   let parameters = oib.Declarations.mind_arity_ctxt in
-  let fil = List.filter (Names.Name.is_name % get_name) parameters in
+  let fil = List.filter (get_name %> Names.Name.is_name) parameters in
   let param_nb = List.length fil in
 Printf.eprintf "nb_params : %d\n" param_nb;
   let mode = List.map (fun i -> i + param_nb) mode in
