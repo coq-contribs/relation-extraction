@@ -94,7 +94,7 @@ let rec list_mem_option x l = match l with
 (* Gets the type of one inductive body *)
 let get_user_arity = function
   | Declarations.RegularArity m -> m.Declarations.mind_user_arity
-  | _ -> CErrors.errorlabstrm "RelationExtraction"
+  | _ -> CErrors.user_err ~hdr:"RelationExtraction"
                       (Pp.str "Cannot deal with polymorphic inductive arity")
 
 let make_mode ind_glb user_mode =

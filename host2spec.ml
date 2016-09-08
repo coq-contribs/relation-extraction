@@ -68,7 +68,7 @@ let find_it_constrs constr =
 let get_prod_type_from_oib oib =
   match oib.mind_arity with
       | RegularArity a -> a.mind_user_arity
-      | _ -> errorlabstrm "RelationExtraction" (str "Non monomorphic arity")
+      | _ -> user_err ~hdr:"RelationExtraction" (str "Non monomorphic arity")
 
 (* TODO: make compatibility with mutual inductives (see the <Rel _> case) *)
 (* Finds type of a constructor. For each argument of this constructor:

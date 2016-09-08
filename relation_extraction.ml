@@ -94,9 +94,9 @@ let extract_relation_common dep ord ind_ref modes =
   let env = Host2spec.find_specifications empty_env in
   (*Printf.eprintf "%s\n" (pp_extract_env env);*)
   let env = try Pred.make_trees env with
-    | RelationExtractionProp (Some p_id, s) -> errorlabstrm "RelationExtraction"
+    | RelationExtractionProp (Some p_id, s) -> user_err ~hdr:"RelationExtraction"
       (str ("Extraction failed at " ^ string_of_ident p_id ^ ": " ^ s))
-    | RelationExtractionProp (None, s) -> errorlabstrm "RelationExtraction"
+    | RelationExtractionProp (None, s) -> user_err ~hdr:"RelationExtraction"
       (str ("Extraction failed: " ^ s))
   in
   let env = Pred.make_ml_funs env in
