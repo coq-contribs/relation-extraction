@@ -29,7 +29,6 @@ open Relation_extraction
 open Pcoq.Prim
 open Pcoq.Constr
 open Stdarg
-open Constrarg
 
 let pr_mode (id, mode) =
   str "" ++ spc () ++ str "[" ++
