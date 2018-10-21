@@ -32,6 +32,7 @@ open Names
 open Term
 open Extraction_plugin.Extract_env
 open Extraction_plugin.Table
+open Extraction_plugin.Miniml
 
 (* Gets an inductive global reference from the extract env. *)
 let get_indgref env id =
@@ -200,8 +201,8 @@ let miniml_init =
         (None, qualid_of_string "Coq.Init.Datatypes.bool")) in*)
 (*      let _ = Printf.printf "(* Required by relation extraction. *)\n%s\n\n"
         "let ocaml_beq = fun x y -> if x = y then True else False" in*)
-      let bool_ref = Libnames.Qualid 
-        ((None, qualid_of_string "Coq.Init.Datatypes.bool")) in
+      let bool_ref = CAst.make (Libnames.Qualid 
+        (qualid_of_string "Coq.Init.Datatypes.bool")) in
       let _ = extract_inductive bool_ref "bool" ["true"; "false"] None in
       init_done := true;
       ()

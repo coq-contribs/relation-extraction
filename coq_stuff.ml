@@ -60,7 +60,7 @@ let extract_dependencies henv =
       Names.id_of_string (String.sub i pos (String.length i - pos))
     with Not_found -> i in
 
-    Libnames.Ident (None, i)
+    CAst.make (Libnames.Ident i)
   ) henv.cstrs in
   (* Not required anymore (Coq bool is mapped to OCaml bool) *)
   (*let refl = (Libnames.Qualid 
