@@ -24,7 +24,6 @@
 (*i camlp4deps: "parsing/grammar.cma" i*)
 
 open Ltac_plugin
-open Genarg
 open Pp
 open Relation_extraction
 open Pcoq.Prim

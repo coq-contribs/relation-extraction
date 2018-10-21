@@ -24,13 +24,13 @@ open Host_stuff
 open Pred
 
 (* Coq types. *)
-type htyp = Term.types option
+type htyp = Constr.types option
 
 (* Coq environment. *)
 type henv = {
   ind_refs : (ident * Libnames.reference) list;
   ind_grefs : (ident * Globnames.global_reference) list;
-  cstrs : (ident * Term.constr) list;
+  cstrs : (ident * Constr.constr) list;
 }
 
 (* Functions to manipulate Coq data. *)

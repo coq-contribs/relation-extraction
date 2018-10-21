@@ -24,12 +24,11 @@ open Pred
 open Coq_stuff
 open Pp
 open CErrors
-open Miniml
 open Nametab
 open Libnames
 open Globnames
 open Names
-open Term
+open Constr
 open Extraction_plugin.Extract_env
 open Extraction_plugin.Table
 open Extraction_plugin.Miniml
@@ -42,9 +41,9 @@ let get_indgref env id =
 let mk_dummy_glb (env, id_spec) id =
   let pred_glb = get_indgref env id_spec in
   let mod_path = modpath_of_r pred_glb in
-  let dir_path = empty_dirpath in
-  let lbl = mk_label (string_of_ident id) in
-  ConstRef (make_con mod_path dir_path lbl)
+  let dir_path = DirPath.empty in
+  let lbl = Label.make (string_of_ident id) in
+  ConstRef (Constant.make3 mod_path dir_path lbl)
 
 let make_fakecstr fake_gref = 
   match fake_gref with
@@ -59,7 +58,6 @@ let get_cstr (env, id_spec) id =
 
 (* References on Coq types. *)
 let bool_glb () = locate (qualid_of_string "Coq.Init.Datatypes.bool")
-let get_booleq () = MLglob (locate (qualid_of_string "Coq.Bool.Bool.eqb"))
 let get_false () = MLcons (Tglob (bool_glb (), []), 
                      locate (qualid_of_string "Coq.Init.Datatypes.false"), [])
 let get_true () = MLcons (Tglob (bool_glb (), []), 
@@ -70,7 +68,7 @@ let get_ptrue () =
   Pcons (locate (qualid_of_string "Coq.Init.Datatypes.true"), [])
 
 (* Gets an MiniML id from a ident. *)
-let ml_id_of_ident id = Id (id_of_string (string_of_ident id))
+let ml_id_of_ident id = Id (Id.of_string (string_of_ident id))
 
 (* Finds the rel of an id in a list of binders, if it exists. *)
 let find_rel bind id = 
@@ -160,13 +158,13 @@ and gen_term (env, id_spec) default bind (t,_) = match t with
       (fun t c -> MLapp (MLglob (mk_dummy_glb (env, id_spec) 
         (ident_of_string "(&&)")), [t; c]))
       (List.hd cl') (List.tl cl')
-  | MLTADefault _ -> default
+  | MLTADefault -> default
   | _ -> anomaly ~label:"RelationExtraction" (str "Unknown term in MiniML")
 
 
 (* Gets the type of a constr. *)
 let rec type_of_constr c =
-  match kind_of_term c with
+  match kind c with
   | Const _ | Ind _ | Construct _ | Var _ -> Tglob (global_of_constr c, [])
   | App (h, a) ->
     Tglob (global_of_constr h, List.map type_of_constr (Array.to_list a))
@@ -215,7 +213,7 @@ let gen_miniml_func env (id, f) =
   let mode = List.hd (extr_get_modes env id) in
   let glb = get_indgref env id in
   let typ, _ = Universes.type_of_global glb in
-  let (prod, _) = decompose_prod typ in
+  let (prod, _) = Term.decompose_prod typ in
   let nprod = List.rev prod in
   let concl = type_of_concl mode nprod in 
   let mlt = gen_type mode nprod concl in
@@ -262,7 +260,7 @@ let gen_miniml env =
   let fn = string_of_ident (fst (List.hd funs)) in
   let id = fst (List.hd funs) in
   let glb = get_indgref env id in
-  let lbl = mk_label fn in
+  let lbl = Label.make fn in
   let mpt = modpath_of_r glb in
   let mls = [mpt, [lbl, SEdecl mld]] in 
   print_one_decl mls mpt mld

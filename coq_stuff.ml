@@ -25,12 +25,12 @@ open Pred
 open Util
 open Context.Rel.Declaration
 
-type htyp = Term.types option
+type htyp = Constr.types option
 
 type henv = {
   ind_refs : (ident * Libnames.reference) list;
   ind_grefs : (ident * Globnames.global_reference) list;
-  cstrs : (ident * Term.constr) list;
+  cstrs : (ident * Constr.constr) list;
 }
 
 let coq_get_fake_type () = None
@@ -44,27 +44,27 @@ let coq_functions = {
 let extract_dependencies henv =
   (* We need a list of references *)
   let refl = List.map (fun (_, c) -> 
-    let i = begin match Term.kind_of_term c with
-      | Term.Construct _ -> let (ind, _), _ = Term.destConstruct c in
+    let i = begin match Constr.kind c with
+      | Term.Construct _ -> let (ind, _), _ = Constr.destConstruct c in
         let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
         oib.Declarations.mind_typename
-      | Term.Const (c, _) -> Names.id_of_string (Names.string_of_con c)
+      | Term.Const (c, _) -> Names.Id.of_string (Names.Constant.to_string c)
       | _ -> assert false
     end in
     
     (* Hack to remove the [module.]name which is not handle by the extraction 
        plugin *)
     let i = try
-      let i = Names.string_of_id i in
+      let i = Names.Id.to_string i in
       let pos = String.rindex i '.' + 1 in
-      Names.id_of_string (String.sub i pos (String.length i - pos))
+      Names.Id.of_string (String.sub i pos (String.length i - pos))
     with Not_found -> i in
 
     CAst.make (Libnames.Ident i)
   ) henv.cstrs in
   (* Not required anymore (Coq bool is mapped to OCaml bool) *)
   (*let refl = (Libnames.Qualid 
-    (Loc.ghost, Libnames.qualid_of_string "Coq.Init.Datatypes.bool"))::
+    (Loc.ghost, Libnames.qualId.of_string "Coq.Init.Datatypes.bool"))::
     refl in *)
   Extraction_plugin.Extract_env.full_extraction None refl
 
@@ -75,7 +75,7 @@ let rec gen_param_args nb =
   else (gen_param_args (nb-1))@[nb]
 
 let adapt_mode ind_ref mode = 
-  let ind, _ = Term.destInd (Universes.constr_of_global (Nametab.global ind_ref)) in
+  let ind, _ = Constr.destInd (Universes.constr_of_global (Nametab.global ind_ref)) in
   let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
   let parameters = oib.Declarations.mind_arity_ctxt in
   let fil = List.filter (get_name %> Names.Name.is_name) parameters in
@@ -98,7 +98,7 @@ let get_user_arity = function
                       (Pp.str "Cannot deal with polymorphic inductive arity")
 
 let make_mode ind_glb user_mode =
-  let ind, _ = Term.destInd (Universes.constr_of_global ind_glb) in
+  let ind, _ = Constr.destInd (Universes.constr_of_global ind_glb) in
   let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
   let typ = get_user_arity oib.Declarations.mind_arity in
   let (args_real, _) = Term.decompose_prod typ in

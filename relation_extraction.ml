@@ -22,20 +22,10 @@
 
 open Pp
 open CErrors
-open Printer
 open Declarations
 open Names
-open Term
-open Pattern
-open Libnames
-open Globnames
+open Constr
 open Nametab
-open Univ
-
-open Miniml
-open Extraction_plugin.Common
-open Extraction_plugin.Extract_env
-open Extraction_plugin.Table
 
 open Pred
 open Coq_stuff
@@ -52,7 +42,7 @@ let extract_relation_common dep ord ind_ref modes =
   let ind_refs, ind_grefs = List.split (List.map ( fun (ind_ref, _) ->
     let ind, _ = destInd (Universes.constr_of_global (global ind_ref)) in
     let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
-    let id = ident_of_string (string_of_id oib.mind_typename) in
+    let id = ident_of_string (Id.to_string oib.mind_typename) in
     (id, ind_ref), (id, global ind_ref) ) modes) in
   let henv = { ind_refs = ind_refs; ind_grefs = ind_grefs; cstrs = [] } in
   
@@ -64,7 +54,7 @@ let extract_relation_common dep ord ind_ref modes =
              oibs in*)
   (*TODO: add irds to ind_refs if they are not present ? 
           ie no mode given, or fail ? *)
-    ident_of_string (string_of_id oib.mind_typename)
+    ident_of_string (Id.to_string oib.mind_typename)
   ) ind_ref in
   let extractions = List.map (fun id -> id, (None, ord)) ids in
 
@@ -73,7 +63,7 @@ let extract_relation_common dep ord ind_ref modes =
     let ind_glb = global ind_ref in
     let ind,_ = destInd (Universes.constr_of_global ind_glb) in
     let _, oib = Inductive.lookup_mind_specif (Global.env ()) ind in
-    let id = ident_of_string (string_of_id oib.mind_typename) in
+    let id = ident_of_string (Id.to_string oib.mind_typename) in
     (id, [make_mode ind_glb (Some (adapt_mode ind_ref mode))]) 
   ) modes in
   let eq_modes = [[MSkip;MInput;MOutput]; [MSkip;MOutput;MInput]; 
