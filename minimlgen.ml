@@ -195,13 +195,13 @@ let miniml_init =
   fun () ->
     if not !init_done then
 (*    let _ = Library.require_library 
-        [(Loc.ghost, qualid_of_string "Coq.Bool.Bool")] (Some false) in *)
+        [(None, qualid_of_string "Coq.Bool.Bool")] (Some false) in *)
 (*    let _ = Extract_env.simple_extraction (Qualid 
-        (Loc.ghost, qualid_of_string "Coq.Init.Datatypes.bool")) in*)
+        (None, qualid_of_string "Coq.Init.Datatypes.bool")) in*)
 (*      let _ = Printf.printf "(* Required by relation extraction. *)\n%s\n\n"
         "let ocaml_beq = fun x y -> if x = y then True else False" in*)
       let bool_ref = Libnames.Qualid 
-        ((Loc.ghost, qualid_of_string "Coq.Init.Datatypes.bool")) in
+        ((None, qualid_of_string "Coq.Init.Datatypes.bool")) in
       let _ = extract_inductive bool_ref "bool" ["true"; "false"] None in
       init_done := true;
       ()
